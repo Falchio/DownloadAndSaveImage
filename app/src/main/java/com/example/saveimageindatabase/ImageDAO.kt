@@ -4,10 +4,10 @@ import androidx.room.*
 
 @Dao
 interface ImageDAO {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(list: List<ImageEntity>)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertImage(vararg image:ImageEntity)
 
     @Update
