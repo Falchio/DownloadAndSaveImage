@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SaveImageInDatabase"
         android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
         android:name=".App">
         <activity
             android:name=".MainActivity"
