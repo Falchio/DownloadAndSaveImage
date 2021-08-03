@@ -3,12 +3,13 @@ package com.example.saveimageindatabase
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Environment
-import android.util.Log
 import androidx.lifecycle.*
 import androidx.room.Room
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 import java.lang.Exception
 import java.net.URL
 import java.nio.ByteBuffer
@@ -34,22 +35,22 @@ class MainViewModel : ViewModel(), LifecycleObserver {
                     val stream = url.openConnection().getInputStream()
                     val bitmap = BitmapFactory.decodeStream(stream)
 
-                    val sd = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) // путь к приватной папке, которая будет удалена вместе с приложением, доступны так же другие типы папок
-                    Log.e("TAG", "startDownloadImage: ${sd?.absolutePath}", )
-
-                    val imageEntity = ImageEntity(
-                        1, "name", url.path, bitmap.convertToByteArray()
-                    )
-
-                    imageDAO.insertImage(imageEntity)
-
-                    val imageFromDB = imageDAO.getAll()
-                    for (image in imageFromDB) {
-                        val decodeImage = image.getBitmap()
-                        bitmapMutableData.postValue(decodeImage)
+                    val appPicturesDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) // путь к приватной папке, которая будет удалена вместе с приложением, доступны так же другие типы папок
+                    val fileForSave = File(appPicturesDir, "file_name.jpg")
+                    val outInputStream = FileOutputStream(fileForSave)
+                    outInputStream.use {
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                        it.flush()
                     }
 
+                    val image = ImageEntity(1,"name", url.path, fileForSave.toString())
+                    imageDAO.insertImage(image)
 
+                    val listImage = imageDAO.getAll()
+                    for (imageInc in listImage){
+                        val bitmapInc = BitmapFactory.decodeFile(imageInc.filePath)
+                        bitmapMutableData.postValue(bitmapInc)
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -82,9 +83,5 @@ class MainViewModel : ViewModel(), LifecycleObserver {
         return bytes
     }
 
-
-    fun ImageEntity.getBitmap(): Bitmap {
-        return BitmapFactory.decodeByteArray(this.bytes, 0, this.bytes.size)
-    }
 
 }

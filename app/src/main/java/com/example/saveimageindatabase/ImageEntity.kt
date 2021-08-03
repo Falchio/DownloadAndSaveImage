@@ -9,8 +9,6 @@ data class ImageEntity(
     @PrimaryKey(autoGenerate = true) val id: Int,
     @ColumnInfo(name = "image_name") val imageName: String,
     @ColumnInfo(name = "image_link") val imageLink: String,
-    @ColumnInfo(name = "image_bytes",typeAffinity = ColumnInfo.BLOB) val bytes: ByteArray
+    @ColumnInfo(name = "file_path") val filePath: String
 
-) {
-
-}
+)
